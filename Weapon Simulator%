@@ -6,7 +6,7 @@ local function loadMainScript()
     -- Display system message when the script runs
     game:GetService("StarterGui"):SetCore(
         "ChatMakeSystemMessage", {
-            Text = "{System} This script was made by Daddy Pookie",
+            Text = "{System} This script was made by Daddy Pookie Type :cmds",
             Color = Color3.fromRGB(255, 0, 0),
             Font = Enum.Font.ArialBold,
         }
