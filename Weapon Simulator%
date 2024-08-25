@@ -257,13 +257,12 @@ local function loadMainScript()
         end
     end)
 
+    -- Notify the player when the script is loaded
     notifyPlayer()
 end
 
--- Listen for the :ghost command in chat
-game.Players.LocalPlayer.Chatted:Connect(function(message)
-    if message:lower() == ":ghost" and not scriptLoaded then
-        scriptLoaded = true
-        loadMainScript()
-    end
-end)
+-- Load the main script if it hasn't been loaded before
+if not scriptLoaded then
+    loadMainScript()
+    scriptLoaded = true
+end
