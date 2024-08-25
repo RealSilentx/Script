@@ -1,0 +1,269 @@
+-- Define a flag to track if the script has been loaded
+local scriptLoaded = false
+
+-- Function to load the main script
+local function loadMainScript()
+    -- Display system message when the script runs
+    game:GetService("StarterGui"):SetCore(
+        "ChatMakeSystemMessage", {
+            Text = "{System} This script was made by Daddy Pookie",
+            Color = Color3.fromRGB(255, 0, 0),
+            Font = Enum.Font.ArialBold,
+        }
+    )
+
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/GhostPlayer352/Test4/main/Weapon%20Simulator%202'))()
+
+    -- Define the allowed game ID
+    local allowedGameId = 6191637341
+
+    -- Check if the player is in the allowed game
+    if game.PlaceId ~= allowedGameId then
+        game.Players.LocalPlayer:Kick("This script is designed to work only in the specific game")
+        return
+    end
+
+    -- Notification to show that the script is running (Only sent once)
+    local notificationSent = false
+
+    -- Track the God mode state
+    local godModeActive = false
+
+    -- Function to send a local message in the player's chat
+    local function sendLocalChatMessage(message)
+        game.StarterGui:SetCore("ChatMakeSystemMessage", {
+            Text = message;
+            Color = Color3.fromRGB(0, 255, 0);  -- Green color
+            Font = Enum.Font.SourceSansBold;
+            FontSize = Enum.FontSize.Size24;
+        })
+    end
+
+    -- Display the list of commands in chat
+    local function showCommands()
+        local commands = {
+            ":farm or /e :farm - Start farming",
+            ":fastfarm or /e :fastfarm - Start faster farming",
+            ":unfarm or /e :unfarm - Stop farming",
+            ":kill [player] or /e :kill [player] - Kill a specific player",
+            ":loopkill [player] or /e :loopkill [player] - Continuously kill a specific player",
+            ":unloop or /e :unloop - Stop all loop killing",
+            ":god or /e :god - Activate God mode",
+            ":cmds or /e :cmds - Display this list of commands"
+        }
+
+        for _, command in pairs(commands) do
+            sendLocalChatMessage(command)
+        end
+    end
+
+    -- Notify the player when the script is first executed
+    local function notifyPlayer()
+        if not notificationSent then
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "Script Loaded";
+                Text  = "Type :cmds or /e :cmds in chat to see all available commands.";
+            })
+            notificationSent = true
+        end
+    end
+
+    -- Variables for farming
+    local farming = false
+    local farmConnection
+    local isLooping = false
+    local loopTargetPlayer
+    local loopConnections = {}  -- Track loop kill connections
+    local multiplier = 10  -- Default multiplier for farming
+
+    -- Function to start or adjust farming with a custom multiplier
+    local function startFarming(multiplier)
+        if not farming then
+            farming = true
+            farmConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                local character = game.Players.LocalPlayer.Character
+                local backpack = game.Players.LocalPlayer.Backpack
+                local sword = character:FindFirstChild("sword") or backpack:FindFirstChild("sword")
+
+                if sword and sword:FindFirstChild("Handle") and sword.Handle:FindFirstChild("pr") then
+                    for i = 1, multiplier do
+                        sword.Handle.pr.RemoteEvent:FireServer()
+                    end
+                end
+            end)
+            sendLocalChatMessage("Farming started")
+        end
+    end
+
+    -- Function to stop farming
+    local function stopFarming()
+        if farming then
+            farming = false
+            if farmConnection then
+                farmConnection:Disconnect()
+            end
+            sendLocalChatMessage("Farming stopped.")
+        end
+    end
+
+    -- Auto-restart farming after respawn with the same speed
+    game.Players.LocalPlayer.CharacterAdded:Connect(function()
+        if farming then
+            startFarming(multiplier)  -- Resume farming with the previous speed
+        end
+
+        if godModeActive then
+            activateGodMode()
+        end
+    end)
+
+    -- Function to find a player by partial username or display name
+    local function findPlayer(partialName)
+        partialName = partialName:lower()
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player.Name:lower():find(partialName) or player.DisplayName:lower():find(partialName) then
+                return player
+            end
+        end
+        return nil
+    end
+
+    -- Function to equip the player's sword
+    local function equipSword()
+        local character = game.Players.LocalPlayer.Character
+        local backpack = game.Players.LocalPlayer.Backpack
+        local sword = character:FindFirstChild("sword") or backpack:FindFirstChild("sword")
+
+        if sword and sword:FindFirstChild("Handle") then
+            -- Equip the sword by setting it as the character's active tool
+            if backpack:FindFirstChild(sword.Name) then
+                game.Players.LocalPlayer.Character.Humanoid:EquipTool(sword)
+            end
+        end
+    end
+
+    -- Function to execute the kill command with a custom damage multiplier
+    local function killPlayer(player)
+        equipSword()
+        local playerHealth = player.Character:FindFirstChild("PlayerHealth")
+        if player and playerHealth then
+            local args = {
+                [1] = playerHealth
+            }
+            -- Fire the remote event for killing
+            game.Players.LocalPlayer.Character.sword.Handle.dmg.RemoteEvent:FireServer(unpack(args))
+        end
+    end
+
+    -- Function to execute loop kill
+    local function loopKillPlayer(player)
+        equipSword()
+        local loopConnection
+        loopConnection = game:GetService("RunService").RenderStepped:Connect(function()
+            if isLooping and loopTargetPlayer then
+                killPlayer(loopTargetPlayer)
+            end
+        end)
+        table.insert(loopConnections, loopConnection)
+    end
+
+    -- Function to stop all loop killing
+    local function stopLoopKilling()
+        isLooping = false
+        for _, connection in ipairs(loopConnections) do
+            connection:Disconnect()
+        end
+        loopConnections = {}
+        sendLocalChatMessage("Stopped all loop killing.")
+    end
+
+    -- Function to activate God mode
+    local function activateGodMode()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+
+        -- Function to restore health to maximum
+        local function restoreHealth()
+            humanoid.Health = humanoid.MaxHealth
+        end
+
+        -- Restore health to maximum and prevent health loss
+        restoreHealth()
+        humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+            restoreHealth()
+        end)
+
+        godModeActive = true
+        sendLocalChatMessage("God mode activated!")
+    end
+
+    -- Command listener
+    game.Players.LocalPlayer.Chatted:Connect(function(msg)
+        local args = msg:split(" ")
+        local prefix, command, targetPartialName
+
+        -- Determine if the message starts with /e or :
+        if args[1]:sub(1, 2) == "/e" then
+            prefix = "/e"
+            command = args[2]:lower()
+            targetPartialName = args[3]
+        elseif args[1]:sub(1, 1) == ":" then
+            prefix = ":"
+            command = args[1]:lower()
+            targetPartialName = args[2]
+        else
+            return
+        end
+
+        -- Handle commands
+        if command == ":farm" or command == "/e :farm" then
+            startFarming(10)  -- Custom multiplier of 10
+        elseif command == ":fastfarm" or command == "/e :fastfarm" then
+            startFarming(25)  -- Custom multiplier of 25
+        elseif command == ":unfarm" or command == "/e :unfarm" then
+            stopFarming()
+        elseif command == ":kill" or command == "/e :kill" then
+            if targetPartialName then
+                local targetPlayer = findPlayer(targetPartialName)
+                if targetPlayer then
+                    killPlayer(targetPlayer)
+                else
+                    sendLocalChatMessage("Player not found.")
+                end
+            else
+                sendLocalChatMessage("Please specify a player to kill.")
+            end
+        elseif command == ":loopkill" or command == "/e :loopkill" then
+            if targetPartialName then
+                local targetPlayer = findPlayer(targetPartialName)
+                if targetPlayer then
+                    isLooping = true
+                    loopTargetPlayer = targetPlayer
+                    loopKillPlayer(loopTargetPlayer)
+                    -- No chat message for loop kill
+                else
+                    sendLocalChatMessage("Player not found.")
+                end
+            else
+                sendLocalChatMessage("Please specify a player to loopkill.")
+            end
+        elseif command == ":unloop" or command == "/e :unloop" then
+            stopLoopKilling()
+        elseif command == ":god" or command == "/e :god" then
+            activateGodMode()
+        elseif command == ":cmds" or command == "/e :cmds" then
+            showCommands()
+        end
+    end)
+
+    notifyPlayer()
+end
+
+-- Listen for the :ghost command in chat
+game.Players.LocalPlayer.Chatted:Connect(function(message)
+    if message:lower() == ":ghost" and not scriptLoaded then
+        scriptLoaded = true
+        loadMainScript()
+    end
+end)
