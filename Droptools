@@ -1,0 +1,77 @@
+-- Gui to Lua
+-- Version: 4.2 (Resized and Centered UI)
+
+-- Instances:
+
+local DropGUI = Instance.new("ScreenGui")
+local main = Instance.new("Frame")
+local DropTool = Instance.new("TextButton")
+local Equip = Instance.new("TextButton")
+local Version = Instance.new("TextLabel")
+local Cred = Instance.new("TextLabel")
+
+--Properties:
+
+DropGUI.Name = "DropGUI"
+DropGUI.Parent = game.CoreGui
+DropGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+main.Name = "MainFrame"
+main.Parent = DropGUI
+main.BackgroundColor3 = Color3.fromRGB(45, 45, 45) -- Smooth dark theme
+main.Position = UDim2.new(0.5, -100, 0.5, -75) -- Centered in the player's screen
+main.Size = UDim2.new(0, 200, 0, 160) -- Slightly upsized for balance
+main.Active = true
+main.Draggable = true
+
+DropTool.Name = "DropTool"
+DropTool.Parent = main
+DropTool.BackgroundColor3 = Color3.fromRGB(60, 160, 255) -- Simple blue for drop
+DropTool.Position = UDim2.new(0.1, 0, 0.1, 0)
+DropTool.Size = UDim2.new(0, 160, 0, 40)
+DropTool.Font = Enum.Font.Gotham
+DropTool.Text = "Drop"
+DropTool.TextColor3 = Color3.fromRGB(255, 255, 255)
+DropTool.TextScaled = true
+DropTool.MouseButton1Down:Connect(function()
+	local tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
+	if tool then
+		tool.Parent = game.Workspace
+	end
+end)
+
+Equip.Name = "Equip"
+Equip.Parent = main
+Equip.BackgroundColor3 = Color3.fromRGB(50, 200, 100) -- Green for equip
+Equip.Position = UDim2.new(0.1, 0, 0.4, 0)
+Equip.Size = UDim2.new(0, 160, 0, 40)
+Equip.Font = Enum.Font.Gotham
+Equip.Text = "Equip"
+Equip.TextColor3 = Color3.fromRGB(255, 255, 255)
+Equip.TextScaled = true
+Equip.MouseButton1Down:Connect(function()
+	local tool = game.Players.LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+	if tool then
+		tool.Parent = game.Players.LocalPlayer.Character
+	end
+end)
+
+Version.Name = "Version"
+Version.Parent = main
+Version.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Version.Position = UDim2.new(0, 0, 0.85, 0)
+Version.Size = UDim2.new(0, 200, 0, 20)
+Version.Font = Enum.Font.Gotham
+Version.Text = "Version 4.0"
+Version.TextColor3 = Color3.fromRGB(255, 255, 255)
+Version.TextScaled = true
+
+Cred.Name = "Credits"
+Cred.Parent = main
+Cred.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Cred.Position = UDim2.new(0, 0, 0.7, 0)
+Cred.Size = UDim2.new(0, 200, 0, 20)
+Cred.Font = Enum.Font.Gotham
+Cred.Text = "Script by Silentx"
+Cred.TextColor3 = Color3.fromRGB(255, 255, 255)
+Cred.TextScaled = true
