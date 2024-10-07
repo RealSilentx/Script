@@ -1,30 +1,61 @@
--- Server Script for setting animations for players
+local animations = {
+    idle = "rbxassetid://782841498",    -- Primary idle animation
+    idleAlt = "rbxassetid://782845736", -- Alternate idle animation
+    walk = "rbxassetid://782843345",    -- Walk animation
+    run = "rbxassetid://782842708",     -- Run animation
+    jump = "rbxassetid://782847020",    -- Jump animation
+    fall = "rbxassetid://782846423",    -- Fall animation
+    climb = "rbxassetid://782843869"    -- Climb animation
+}
 
--- Function to set up custom animations
-local function setupAnimations(player)
-    -- Wait for the character to load
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    
-    -- Wait for the Animate script to load
-    local animate = character:WaitForChild("Animate")
+-- Function to replace the default animations
+local function replaceAnimations(character)
+    local animateScript = character:WaitForChild("Animate")
 
-    -- Set custom animation IDs
-    animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=782841498"
-    animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=782845736"
-    animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=782843345"
-    animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=782842708"
-    animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=782847020"
-    animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=782843869"
-    animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=782846423"
-    
-    -- Make the character jump
-    humanoid.Jump = true
+    -- Replace each animation
+    for animationType, animationId in pairs(animations) do
+        if animateScript:FindFirstChild(animationType) then
+            for _, anim in ipairs(animateScript[animationType]:GetChildren()) do
+                if anim:IsA("Animation") then
+                    anim.AnimationId = animationId
+                end
+            end
+        end
+    end
+
+    -- Handle alternate idle animation separately
+    local idle = animateScript:FindFirstChild("idle")
+    if idle then
+        local animAlt = idle:FindFirstChild("Animation2")
+        if animAlt then
+            animAlt.AnimationId = animations.idleAlt
+        end
+    end
 end
 
--- Connect the function to the PlayerAdded event
-game.Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function()
-        setupAnimations(player)
+-- Function to ensure animations loop
+local function ensureAnimationsLoop(character)
+    local humanoid = character:WaitForChild("Humanoid")
+
+    -- Connect to the AnimationPlayed event
+    humanoid.AnimationPlayed:Connect(function(animationTrack)
+        -- Ensure the animation loops
+        animationTrack.Looped = true
     end)
-end)
+end
+
+-- Function to handle character respawn
+local function onCharacterAdded(character)
+    -- Wait for the character to be fully loaded
+    replaceAnimations(character)
+    ensureAnimationsLoop(character)
+end
+
+-- Listen for character respawn
+local player = game.Players.LocalPlayer
+player.CharacterAdded:Connect(onCharacterAdded)
+
+-- Run the functions for the current character if it already exists
+if player.Character then
+    onCharacterAdded(player.Character)
+end
