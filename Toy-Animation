@@ -1,61 +1,40 @@
-local animations = {
-    idle = "rbxassetid://782841498",    -- Primary idle animation
-    idleAlt = "rbxassetid://782845736", -- Alternate idle animation
-    walk = "rbxassetid://782843345",    -- Walk animation
-    run = "rbxassetid://782842708",     -- Run animation
-    jump = "rbxassetid://782847020",    -- Jump animation
-    fall = "rbxassetid://782846423",    -- Fall animation
-    climb = "rbxassetid://782843869"    -- Climb animation
-}
+local player = game.Players.LocalPlayer
 
--- Function to replace the default animations
-local function replaceAnimations(character)
-    local animateScript = character:WaitForChild("Animate")
+local function applyAnimations(character)
+    -- Wait for necessary components to fully load
+    local humanoid = character:WaitForChild("Humanoid")
+    local animate = character:WaitForChild("Animate")
 
-    -- Replace each animation
-    for animationType, animationId in pairs(animations) do
-        if animateScript:FindFirstChild(animationType) then
-            for _, anim in ipairs(animateScript[animationType]:GetChildren()) do
-                if anim:IsA("Animation") then
-                    anim.AnimationId = animationId
-                end
-            end
-        end
-    end
+    if animate then
+        -- Set the custom animation IDs
+        animate.idle.Animation1.AnimationId = "http://www.roblox.com/asset/?id=782841498"
+        animate.idle.Animation2.AnimationId = "http://www.roblox.com/asset/?id=782845736"
+        animate.walk.WalkAnim.AnimationId = "http://www.roblox.com/asset/?id=782843345"
+        animate.run.RunAnim.AnimationId = "http://www.roblox.com/asset/?id=782842708"
+        animate.jump.JumpAnim.AnimationId = "http://www.roblox.com/asset/?id=782847020"
+        animate.climb.ClimbAnim.AnimationId = "http://www.roblox.com/asset/?id=782843869"
+        animate.fall.FallAnim.AnimationId = "http://www.roblox.com/asset/?id=782846423"
 
-    -- Handle alternate idle animation separately
-    local idle = animateScript:FindFirstChild("idle")
-    if idle then
-        local animAlt = idle:FindFirstChild("Animation2")
-        if animAlt then
-            animAlt.AnimationId = animations.idleAlt
-        end
+        -- Optional: Trigger an initial jump to apply animations smoothly
+        humanoid.Jump = true
+    else
+        warn("Animate script not found in character")
     end
 end
 
--- Function to ensure animations loop
-local function ensureAnimationsLoop(character)
+-- Apply animations to the initial character if it exists
+if player.Character then
+    applyAnimations(player.Character)
+end
+
+-- Apply animations each time the player respawns and the character is fully loaded
+player.CharacterAdded:Connect(function(character)
+    -- Wait for HumanoidRootPart to ensure the character is ready
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    -- You may also want to wait for the humanoid to ensure it is ready
     local humanoid = character:WaitForChild("Humanoid")
 
-    -- Connect to the AnimationPlayed event
-    humanoid.AnimationPlayed:Connect(function(animationTrack)
-        -- Ensure the animation loops
-        animationTrack.Looped = true
-    end)
-end
-
--- Function to handle character respawn
-local function onCharacterAdded(character)
-    -- Wait for the character to be fully loaded
-    replaceAnimations(character)
-    ensureAnimationsLoop(character)
-end
-
--- Listen for character respawn
-local player = game.Players.LocalPlayer
-player.CharacterAdded:Connect(onCharacterAdded)
-
--- Run the functions for the current character if it already exists
-if player.Character then
-    onCharacterAdded(player.Character)
-end
+    -- After everything is loaded, apply animations
+    applyAnimations(character)
+end)
